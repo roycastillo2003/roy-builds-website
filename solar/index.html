@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar System Calculator</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e4e7ec;--accent:#f59e0b;--accent2:#0f766e;--danger:#b42318;--good:#067647;--shadow:0 8px 28px rgba(16,24,40,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.container{max-width:1180px;margin:auto;padding:24px}.hero{background:linear-gradient(135deg,#172033,#26364d);color:#fff;border-radius:20px;padding:30px;box-shadow:var(--shadow);margin-bottom:18px}.hero h1{margin:0 0 6px;font-size:32px}.hero p{margin:0;color:#d0d5dd}.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px}.card h2,.card h3{margin:0 0 14px}.step{font-size:12px;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.row{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.field{margin-bottom:14px}.field label{display:block;font-weight:700;margin-bottom:6px}.field small,.hint{color:var(--muted);font-size:13px}.input,.select{width:100%;padding:11px 12px;border:1px solid #d0d5dd;border-radius:10px;font:inherit;background:#fff}.input:focus,.select:focus{outline:3px solid rgba(245,158,11,.18);border-color:var(--accent)}
+.segment{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg{position:relative}.seg input{position:absolute;opacity:0}.seg label{display:block;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-weight:700}.seg input:checked+label{border-color:var(--accent);background:#fff8eb;box-shadow:inset 0 0 0 1px var(--accent)}
+.check{display:flex;gap:9px;align-items:center;margin:8px 0}.check input{width:18px;height:18px}.btn{border:0;border-radius:11px;padding:13px 18px;font-weight:800;cursor:pointer;font-size:15px}.primary{background:var(--accent);color:#1b1300}.secondary{background:#eef2f6;color:#344054}.full{width:100%}.hidden{display:none!important}
+.result-hero{border:2px solid #f7c66a;background:#fffbf2}.big{font-size:36px;font-weight:900;line-height:1.1}.unit{font-size:15px;color:var(--muted);font-weight:600}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{border:1px solid var(--line);border-radius:12px;padding:14px}.metric .label{color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase}.metric .value{font-size:22px;font-weight:900;margin-top:3px}.status{padding:11px 13px;border-radius:10px;margin:8px 0;font-weight:650}.warn{background:#fff3e8;color:#9a3412}.good{background:#ecfdf3;color:var(--good)}.danger{background:#fef3f2;color:var(--danger)}.info{background:#eff8ff;color:#175cd3}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}th{font-size:12px;color:var(--muted);text-transform:uppercase}.ad{min-height:110px;border:1px dashed #cbd5e1;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa}.ad img{max-width:100%;max-height:180px;display:block}.ad a{display:block;width:100%}.ad-label{font-size:10px;color:#98a2b3;text-align:center;margin-bottom:5px}.formula{background:#101828;color:#e4e7ec;border-radius:12px;padding:15px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;white-space:pre-wrap}.admin-tabs{display:flex;gap:8px;margin-bottom:15px}.admin-tabs button{flex:1}.notice{border-left:4px solid var(--accent);padding:10px 12px;background:#fffbf2}.footer{color:var(--muted);font-size:12px;text-align:center;padding:10px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.row,.row3,.segment,.metrics{grid-template-columns:1fr}.hero h1{font-size:26px}.container{padding:14px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <section class="hero">
+    <h1>☀️ Solar System Calculator</h1>
+    <p>Estimate your solar array, inverter and battery requirements — with the math shown clearly.</p>
+  </section>
+
+  <div class="grid">
+    <main>
+      <section class="card">
+        <div class="step">Step 1</div><h2>Your electricity usage</h2>
+        <div class="segment">
+          <div class="seg"><input id="modeKwh" name="inputMode" type="radio" value="kwh" checked><label for="modeKwh">I know my kWh</label></div>
+          <div class="seg"><input id="modePeso" name="inputMode" type="radio" value="peso"><label for="modePeso">I know my bill</label></div>
+          <div class="seg"><input id="modeBoth" name="inputMode" type="radio" value="both"><label for="modeBoth">Both</label></div>
+        </div>
+        <div class="row" style="margin-top:15px">
+          <div class="field" id="kwhField"><label>Monthly consumption (kWh)</label><input class="input" id="monthlyKwh" type="number" min="0" step="1" value="900"></div>
+          <div class="field hidden" id="billField"><label>Monthly electricity bill (₱)</label><input class="input" id="monthlyBill" type="number" min="0" step="100" value="10800"></div>
+          <div class="field"><label>Electricity rate (₱/kWh)</label><input class="input" id="rate" type="number" min="0.01" step=".01" value="12"><small>Editable in Admin settings.</small></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="step">Step 2</div><h2>Choose your system</h2>
+        <div class="segment">
+          <div class="seg"><input id="grid" name="system" type="radio" value="grid" checked><label for="grid">Grid-Tied</label></div>
+          <div class="seg"><input id="hybrid" name="system" type="radio" value="hybrid"><label for="hybrid">Hybrid</label></div>
+          <div class="seg"><input id="offgrid" name="system" type="radio" value="offgrid"><label for="offgrid">Off-Grid</label></div>
+        </div>
+        <p class="hint">Hybrid = solar + battery + grid. Grid-tied normally has no backup battery.</p>
+      </section>
+
+      <section class="card" id="hybridCard">
+        <div class="step">Step 3</div><h2>Hybrid / battery settings</h2>
+        <div class="row3">
+          <div class="field"><label>Inverter</label><select class="select" id="inverter"><option value="auto">Let calculator recommend</option><option value="3">3 kW</option><option value="5">5 kW</option><option value="6" selected>6 kW</option><option value="8">8 kW</option><option value="10">10 kW</option><option value="12">12 kW</option></select></div>
+          <div class="field"><label>Battery voltage</label><select class="select" id="voltage"><option>12</option><option>24</option><option value="48" selected>48</option></select></div>
+          <div class="field"><label>Battery size</label><select class="select" id="ah"><option value="0">No battery</option><option value="100">100 Ah</option><option value="200" selected>200 Ah</option><option value="300">300 Ah</option><option value="400">400 Ah</option></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Battery DoD</label><select class="select" id="dod"><option value=".6">60%</option><option value=".7">70%</option><option value=".8" selected>80%</option><option value=".9">90%</option></select></div>
+          <div class="field"><label>Desired backup duration</label><select class="select" id="backupHours"><option>2</option><option selected>4</option><option>6</option><option>8</option><option>12</option></select></div>
+        </div>
+        <div class="field"><label>How much of the home should be backed up?</label><select class="select" id="backupPct"><option value=".25">25%</option><option value=".5" selected>50%</option><option value=".75">75%</option><option value="1">100%</option></select></div>
+      </section>
+
+      <section class="card">
+        <div class="step">Step 4</div><h2>Peak load & EV</h2>
+        <div class="row">
+          <div class="field"><label>Maximum simultaneous load (kW)</label><input class="input" id="peakLoad" type="number" min="0" step=".1" placeholder="Leave blank if unknown"><small>If unknown, the calculator uses a planning estimate.</small></div>
+          <div class="field"><label>EV charger</label><select class="select" id="ev"><option value="0">No EV</option><option value="3.6">3.6 kW</option><option value="7">7 kW</option><option value="11">11 kW</option></select></div>
+        </div>
+        <div class="notice">Monthly kWh tells us energy use. It does <b>not</b> tell us the maximum power your appliances can demand at the same time.</div>
+      </section>
+
+      <section class="card">
+        <button class="btn primary full" id="calculate">CALCULATE MY SOLAR SYSTEM</button>
+      </section>
+
+      <section class="card result-hero hidden" id="results">
+        <div class="step">Your estimate</div><h2>Recommended solar system</h2>
+        <div class="metrics">
+          <div class="metric"><div class="label">Monthly usage</div><div class="value" id="rMonthly">—</div></div>
+          <div class="metric"><div class="label">Daily usage</div><div class="value" id="rDaily">—</div></div>
+          <div class="metric"><div class="label">Solar array</div><div class="value" id="rSolar">—</div></div>
+          <div class="metric"><div class="label">Inverter</div><div class="value" id="rInv">—</div></div>
+          <div class="metric"><div class="label">Battery</div><div class="value" id="rBatt">—</div></div>
+          <div class="metric"><div class="label">Usable battery</div><div class="value" id="rUsable">—</div></div>
+        </div>
+        <div id="warnings" style="margin-top:12px"></div>
+      </section>
+
+      <section class="card hidden" id="mathCard">
+        <h2>How did we calculate this?</h2>
+        <div class="formula" id="math"></div>
+      </section>
+
+      <section class="card hidden" id="batteryCard">
+        <h2>Battery comparison</h2>
+        <table><thead><tr><th>Battery</th><th>Nominal</th><th>Usable</th><th>Approx. backup</th></tr></thead><tbody id="batteryTable"></tbody></table>
+      </section>
+    </main>
+
+    <aside>
+      <div class="card">
+        <div class="ad-label">ADVERTISEMENT</div>
+        <div class="ad" id="adTop">Your ad can appear here</div>
+      </div>
+      <div class="card">
+        <h3>Planning assumptions</h3>
+        <div class="hint">Peak sun hours: <b id="showSun">4.5</b> h/day</div>
+        <div class="hint">System efficiency: <b id="showEff">80</b>%</div>
+        <div class="hint">Default electricity rate: <b id="showRate">₱12.00</b>/kWh</div>
+      </div>
+      <div class="card">
+        <div class="ad-label">ADVERTISEMENT</div>
+        <div class="ad" id="adSide">Your ad can appear here</div>
+      </div>
+      <div class="card">
+        <h3>Admin</h3>
+        <p class="hint">This demo admin panel stores settings in your browser using localStorage. It is not a secure multi-user backend.</p>
+        <button class="btn secondary full" id="adminBtn">Open Admin</button>
+      </div>
+    </aside>
+  </div>
+
+  <section class="card hidden" id="adminPanel">
+    <h2>Admin Settings</h2>
+    <div class="admin-tabs"><button class="btn secondary" id="saveAdmin">Save settings</button><button class="btn secondary" id="resetAdmin">Reset defaults</button></div>
+    <div class="row3">
+      <div class="field"><label>Default ₱/kWh</label><input class="input" id="aRate" type="number" step=".01"></div>
+      <div class="field"><label>Peak sun hours</label><input class="input" id="aSun" type="number" step=".1"></div>
+      <div class="field"><label>System efficiency</label><input class="input" id="aEff" type="number" step="1" min="1" max="100"></div>
+    </div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
+    <h3>Advertisement</h3>
+    <div class="row">
+      <div class="field"><label>Image URL</label><input class="input" id="aImg" placeholder="https://example.com/ad.jpg"></div>
+      <div class="field"><label>Destination URL</label><input class="input" id="aUrl" placeholder="https://example.com"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Ad title</label><input class="input" id="aTitle" placeholder="Solar promotion"></div>
+      <div class="field"><label>Active</label><select class="select" id="aActive"><option value="yes">Yes</option><option value="no">No</option></select></div>
+    </div>
+    <p class="hint">For a real public website, move Admin authentication and ad settings to a server/database. Browser localStorage is only suitable for this prototype.</p>
+  </section>
+
+  <div class="footer">Planning tool only — final solar system sizing should be verified by a qualified solar professional.</div>
+</div>
+
+<script>
+const DEFAULTS={rate:12,sun:4.5,eff:.80,ad:{img:"",url:"",title:"",active:"no"}};
+let cfg=JSON.parse(localStorage.getItem("solarCfg")||"null")||DEFAULTS;
+const $=id=>document.getElementById(id);
+function money(n){return new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP",maximumFractionDigits:2}).format(n)}
+function num(id){return parseFloat($(id).value)||0}
+function selected(name){return document.querySelector('input[name="'+name+'"]:checked').value}
+function updateInputMode(){
+ const m=selected("inputMode");
+ $("kwhField").classList.toggle("hidden",m==="peso");
+ $("billField").classList.toggle("hidden",m==="kwh");
+}
+function updateSystem(){
+ const s=selected("system");
+ $("hybridCard").classList.toggle("hidden",s==="grid");
+}
+document.querySelectorAll('input[name="inputMode"]').forEach(x=>x.addEventListener("change",updateInputMode));
+document.querySelectorAll('input[name="system"]').forEach(x=>x.addEventListener("change",updateSystem));
+$("rate").value=cfg.rate; updateInputMode(); updateSystem();
+
+function renderAd(el){
+ const a=cfg.ad||DEFAULTS.ad;
+ el.innerHTML="";
+ if(a.active==="yes" && a.img){
+   const link=document.createElement("a");link.href=a.url||"#";link.target="_blank";link.rel="noopener noreferrer";
+   const img=document.createElement("img");img.src=a.img;img.alt=a.title||"Advertisement";
+   link.appendChild(img);el.appendChild(link);
+ }else el.textContent="Your ad can appear here";
+}
+function renderAssumptions(){
+ $("showSun").textContent=cfg.sun;
+ $("showEff").textContent=Math.round(cfg.eff*100);
+ $("showRate").textContent=money(cfg.rate);
+ renderAd($("adTop"));renderAd($("adSide"));
+}
+renderAssumptions();
+
+function calculate(){
+ const mode=selected("inputMode"), system=selected("system");
+ const rate=num("rate")||cfg.rate;
+ let kwh=num("monthlyKwh");
+ if(mode==="peso") kwh=num("monthlyBill")/rate;
+ if(mode==="both" && num("monthlyBill")>0) kwh=num("monthlyBill")/rate;
+ if(kwh<=0){alert("Please enter a valid electricity usage or bill.");return}
+ const daily=kwh/30;
+ const solarRaw=daily/(cfg.sun*cfg.eff);
+ const solar=Math.ceil(solarRaw*2)/2;
+ let peak=num("peakLoad");
+ const ev=num("ev");
+ const planningPeak=peak>0?peak:Math.max(2,daily/8);
+ let inv;
+ if($("inverter").value!=="auto" && system!=="grid") inv=parseFloat($("inverter").value);
+ else {
+   inv=planningPeak;
+   if(ev>inv) inv=ev;
+   const choices=[3,5,6,8,10,12];
+   inv=choices.find(x=>x>=inv)||12;
+ }
+ if(system==="grid") inv=Math.max(inv,Math.ceil(Math.min(solar,12)));
+ const v=num("voltage"),ah=num("ah"),dod=num("dod"),backup=num("backupHours"),backupPct=num("backupPct");
+ const nominal=v*ah/1000,usable=nominal*dod;
+ const backupLoad=planningPeak*backupPct;
+ const requiredUsable=backupLoad*backup;
+ const requiredNominal=dod?requiredUsable/dod:0;
+ const backupActual=backupLoad>0?usable/backupLoad:0;
+
+ $("results").classList.remove("hidden");$("mathCard").classList.remove("hidden");
+ $("rMonthly").textContent=kwh.toFixed(0)+" kWh";
+ $("rDaily").textContent=daily.toFixed(1)+" kWh/day";
+ $("rSolar").textContent=solar.toFixed(1)+" kWp";
+ $("rInv").textContent=inv.toFixed(1).replace(".0","")+" kW";
+ $("rBatt").textContent=system==="grid"?"Not required":(ah?`${v}V ${ah}Ah`:"No battery");
+ $("rUsable").textContent=system==="grid"?"—":`${usable.toFixed(2)} kWh`;
+
+ let warnings=[];
+ if(system!=="grid" && ah>0 && usable<requiredUsable) warnings.push(`<div class="status warn">Battery warning: your selected battery provides about ${backupActual.toFixed(1)} hours at the selected backup load, versus your ${backup}-hour target.</div>`);
+ if(ev>inv) warnings.push(`<div class="status danger">EV warning: a ${ev} kW charger can exceed the ${inv} kW inverter rating by itself. Load management or a larger/grid-assisted setup may be needed.</div>`);
+ if(peak>0 && peak>inv) warnings.push(`<div class="status danger">Peak-load warning: estimated ${peak} kW peak load is higher than the selected ${inv} kW inverter.</div>`);
+ if(system==="offgrid") warnings.push(`<div class="status warn">Off-grid sizing needs additional analysis for worst-case weather, generator backup, battery autonomy and critical loads. Treat this as a preliminary estimate.</div>`);
+ if(!peak) warnings.push(`<div class="status info">Peak load was not provided, so inverter/backup sizing uses a planning estimate. For a serious design, enter your maximum simultaneous load.</div>`);
+ if(!warnings.length) warnings.push(`<div class="status good">No major sizing warning was triggered by the inputs you provided.</div>`);
+ $("warnings").innerHTML=warnings.join("");
+
+ $("math").textContent=
+`Monthly consumption: ${kwh.toFixed(2)} kWh
+Daily consumption: ${kwh.toFixed(2)} ÷ 30 = ${daily.toFixed(2)} kWh/day
+
+Solar requirement:
+${daily.toFixed(2)} ÷ (${cfg.sun} peak-sun-hours × ${(cfg.eff*100).toFixed(0)}% efficiency)
+= ${solarRaw.toFixed(2)} kWp
+Practical rounded recommendation = ${solar.toFixed(1)} kWp
+
+Planning peak load:
+${peak>0?peak.toFixed(2)+" kW entered by user":daily.toFixed(2)+" ÷ 8 = "+planningPeak.toFixed(2)+" kW estimated"}
+
+Battery:
+${v}V × ${ah}Ah ÷ 1000 = ${nominal.toFixed(2)} kWh nominal
+${nominal.toFixed(2)} × ${(dod*100).toFixed(0)}% DoD = ${usable.toFixed(2)} kWh usable
+
+Backup target:
+${planningPeak.toFixed(2)} kW × ${(backupPct*100).toFixed(0)}% backed-up load × ${backup} h
+= ${requiredUsable.toFixed(2)} kWh usable required
+≈ ${requiredNominal.toFixed(2)} kWh nominal battery required`;
+
+ $("batteryTable").innerHTML="";
+ [100,200,300,400].forEach(a=>{
+   const n=v*a/1000,u=n*dod,b=backupLoad?u/backupLoad:0;
+   $("batteryTable").insertAdjacentHTML("beforeend",`<tr><td>${v}V ${a}Ah</td><td>${n.toFixed(2)} kWh</td><td>${u.toFixed(2)} kWh</td><td>${b.toFixed(1)} h</td></tr>`);
+ });
+ $("batteryCard").classList.toggle("hidden",system==="grid");
+ $("results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("calculate").addEventListener("click",calculate);
+
+$("adminBtn").addEventListener("click",()=>{
+ $("adminPanel").classList.toggle("hidden");
+ $("aRate").value=cfg.rate;$("aSun").value=cfg.sun;$("aEff").value=Math.round(cfg.eff*100);
+ $("aImg").value=cfg.ad?.img||"";$("aUrl").value=cfg.ad?.url||"";$("aTitle").value=cfg.ad?.title||"";$("aActive").value=cfg.ad?.active||"no";
+});
+$("saveAdmin").addEventListener("click",()=>{
+ cfg={rate:num("aRate")||12,sun:num("aSun")||4.5,eff:(num("aEff")||80)/100,ad:{img:$("aImg").value.trim(),url:$("aUrl").value.trim(),title:$("aTitle").value.trim(),active:$("aActive").value}};
+ localStorage.setItem("solarCfg",JSON.stringify(cfg));$("rate").value=cfg.rate;renderAssumptions();alert("Settings saved in this browser.");
+});
+$("resetAdmin").addEventListener("click",()=>{
+ cfg=JSON.parse(JSON.stringify(DEFAULTS));localStorage.setItem("solarCfg",JSON.stringify(cfg));$("rate").value=cfg.rate;renderAssumptions();$("adminBtn").click();alert("Defaults restored.");
+});
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ GitHub Pages starter site.
 Create a public repository named `YOURUSERNAME.github.io`, then upload:
 - `index.html`
 - `style.css`
-- the `solar` folder
+- the `RISE TRHOUGH THE RANKS` folder
 - the `snake` folder
 
 Then go to Settings → Pages → Deploy from a branch → main → /(root) → Save.

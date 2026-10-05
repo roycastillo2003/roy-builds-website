@@ -84,6 +84,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
           <div class="metric"><div class="label">Inverter</div><div class="value" id="rInv">—</div></div>
           <div class="metric"><div class="label">Battery</div><div class="value" id="rBatt">—</div></div>
           <div class="metric"><div class="label">Usable battery</div><div class="value" id="rUsable">—</div></div>
+          <div class="metric"><div class="label">Evening battery runtime</div><div class="value" id="rEvening">—</div></div>
         </div>
         <div id="warnings" style="margin-top:12px"></div>
       </section>
@@ -219,6 +220,7 @@ function calculate(){
  $("rInv").textContent=inv.toFixed(1).replace(".0","")+" kW";
  $("rBatt").textContent=system==="grid"?"Not required":(ah?`${v}V ${ah}Ah`:"No battery");
  $("rUsable").textContent=system==="grid"?"—":`${usable.toFixed(2)} kWh`;
+ $("rEvening").textContent=system==="grid"||!ah||backupLoad<=0?"—":`${backupActual.toFixed(1)} hours`;
 
  let warnings=[];
  if(system!=="grid" && ah>0 && usable<requiredUsable) warnings.push(`<div class="status warn">Battery warning: your selected battery provides about ${backupActual.toFixed(1)} hours at the selected backup load, versus your ${backup}-hour target.</div>`);
@@ -248,7 +250,13 @@ ${nominal.toFixed(2)} × ${(dod*100).toFixed(0)}% DoD = ${usable.toFixed(2)} kWh
 Backup target:
 ${planningPeak.toFixed(2)} kW × ${(backupPct*100).toFixed(0)}% backed-up load × ${backup} h
 = ${requiredUsable.toFixed(2)} kWh usable required
-≈ ${requiredNominal.toFixed(2)} kWh nominal battery required`;
+≈ ${requiredNominal.toFixed(2)} kWh nominal battery required
+
+Evening battery runtime:
+${usable.toFixed(2)} kWh usable ÷ ${backupLoad.toFixed(2)} kW evening backed-up load
+= ${backupActual.toFixed(1)} hours
+
+This is an estimate assuming the selected backed-up load stays roughly constant. Real runtime can be shorter because of inverter losses, battery temperature, battery age, startup loads and changing appliance demand.`;
 
  $("batteryTable").innerHTML="";
  [100,200,300,400].forEach(a=>{
